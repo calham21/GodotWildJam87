@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://bx28vprt7d0wq"]
+
+[ext_resource type="Script" path="res://entity/components/ArmComponent.gd" id="1_mca40"]
+[ext_resource type="Texture2D" uid="uid://n7sdpqqg3yn6" path="res://asset/creature/test/test_character_arm.png" id="2_vgmva"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2mbpq"]
+radius = 4.0
+
+[node name="Arm" type="Node2D"]
+script = ExtResource("1_mca40")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+modulate = Color(0.835294, 1, 1, 1)
+texture = ExtResource("2_vgmva")
+offset = Vector2(6, 0)
+hframes = 2
+
+[node name="Hand" type="Marker2D" parent="."]
+position = Vector2(13, 0)
+
+[node name="HandPickupArea" type="Area2D" parent="Hand"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hand/HandPickupArea"]
+shape = SubResource("CircleShape2D_2mbpq")
+
+[connection signal="body_entered" from="Hand/HandPickupArea" to="." method="_on_hand_pickup_area_body_entered"]
+[connection signal="body_exited" from="Hand/HandPickupArea" to="." method="_on_hand_pickup_area_body_exited"]

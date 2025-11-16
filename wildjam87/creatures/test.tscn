@@ -1,0 +1,123 @@
+[gd_scene load_steps=18 format=3 uid="uid://bv0gp3o1qssln"]
+
+[ext_resource type="Script" path="res://entity/Entity.gd" id="1_vueji"]
+[ext_resource type="Script" path="res://entity/EntityStats.gd" id="2_xbour"]
+[ext_resource type="Script" path="res://entity/state_machine/Entity_State_Machine.gd" id="3_t8tn3"]
+[ext_resource type="Script" path="res://entity/state_machine/states/IdleState.gd" id="4_2cocs"]
+[ext_resource type="Script" path="res://entity/components/TailComponent.gd" id="5_8b28j"]
+[ext_resource type="Script" path="res://entity/state_machine/states/MoveState.gd" id="5_tesxc"]
+[ext_resource type="Script" path="res://entity/state_machine/states/JumpState.gd" id="6_8vnbh"]
+[ext_resource type="Texture2D" uid="uid://57kw1g1ixfff" path="res://asset/creature/test/test_character_body.png" id="6_j25ed"]
+[ext_resource type="Script" path="res://entity/state_machine/states/FallState.gd" id="7_gct07"]
+[ext_resource type="Texture2D" uid="uid://t6gh4byts478" path="res://asset/creature/test/test_character_hip.png" id="9_7dpfa"]
+[ext_resource type="Texture2D" uid="uid://dbytoaw485k7j" path="res://asset/creature/test/test_character_head.png" id="10_iod5y"]
+[ext_resource type="Texture2D" uid="uid://bsvk7idgreysd" path="res://asset/creature/test/test_character_face.png" id="12_5jgh3"]
+[ext_resource type="PackedScene" uid="uid://bx28vprt7d0wq" path="res://entity/components/Arm.tscn" id="12_vs6fp"]
+[ext_resource type="Texture2D" uid="uid://v7cnwfwkospw" path="res://asset/light.png" id="13_ry3qe"]
+
+[sub_resource type="Resource" id="Resource_lx1rt"]
+script = ExtResource("2_xbour")
+health = 1.0
+move_speed = 150.0
+jump_force = 550.0
+gravity = -30.0
+fall_gravity = -35.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y2th7"]
+radius = 3.0
+height = 10.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r64mm"]
+radius = 2.5
+height = 15.0
+
+[node name="Test" type="CharacterBody2D" node_paths=PackedStringArray("hip_col", "body_col", "visual_container", "tail", "hip_node", "body_node", "head_node", "face_node", "body_overlap_ray", "arms_array")]
+collision_layer = 16
+safe_margin = 0.5
+script = ExtResource("1_vueji")
+stats = SubResource("Resource_lx1rt")
+hip_col = NodePath("HipCollision")
+body_col = NodePath("BodyCollision")
+visual_container = NodePath("VisualContainer")
+tail = NodePath("VisualContainer/Tail")
+hip_node = NodePath("VisualContainer/Hip")
+body_node = NodePath("VisualContainer/Hip/Body")
+head_node = NodePath("VisualContainer/Hip/Body/Head")
+face_node = NodePath("VisualContainer/Hip/Body/Head/Face")
+body_overlap_ray = [NodePath("VisualContainer/Hip/BodyOverlapRay"), NodePath("VisualContainer/Hip/BodyOverlapRay2"), NodePath("VisualContainer/Hip/BodyOverlapRay3")]
+arms_array = [NodePath("VisualContainer/Hip/Body/Arm"), NodePath("VisualContainer/Hip/Body/Arm2")]
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("3_t8tn3")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("4_2cocs")
+
+[node name="Move" type="Node" parent="StateMachine"]
+script = ExtResource("5_tesxc")
+
+[node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("6_8vnbh")
+
+[node name="Fall" type="Node" parent="StateMachine"]
+script = ExtResource("7_gct07")
+
+[node name="VisualContainer" type="Node2D" parent="."]
+modulate = Color(1, 0.319493, 0.296975, 1)
+scale = Vector2(0.7, 0.7)
+
+[node name="Tail" type="Node2D" parent="VisualContainer" node_paths=PackedStringArray("entity")]
+script = ExtResource("5_8b28j")
+entity = NodePath("../..")
+num_nodes = 16
+
+[node name="Hip" type="Sprite2D" parent="VisualContainer"]
+texture = ExtResource("9_7dpfa")
+
+[node name="Body" type="Sprite2D" parent="VisualContainer/Hip"]
+position = Vector2(0, -1)
+texture = ExtResource("6_j25ed")
+offset = Vector2(0, -5)
+
+[node name="Head" type="Sprite2D" parent="VisualContainer/Hip/Body"]
+position = Vector2(0, -9)
+texture = ExtResource("10_iod5y")
+offset = Vector2(0, -4)
+
+[node name="Face" type="Sprite2D" parent="VisualContainer/Hip/Body/Head"]
+position = Vector2(0, -4)
+texture = ExtResource("12_5jgh3")
+hframes = 3
+vframes = 3
+
+[node name="PointLight2D" type="PointLight2D" parent="VisualContainer/Hip/Body/Head"]
+shadow_enabled = true
+texture = ExtResource("13_ry3qe")
+texture_scale = 20.0
+
+[node name="Arm" parent="VisualContainer/Hip/Body" instance=ExtResource("12_vs6fp")]
+position = Vector2(5, -8)
+
+[node name="Arm2" parent="VisualContainer/Hip/Body" instance=ExtResource("12_vs6fp")]
+position = Vector2(-5, -8)
+
+[node name="BodyOverlapRay" type="RayCast2D" parent="VisualContainer/Hip"]
+target_position = Vector2(0, -28)
+
+[node name="BodyOverlapRay2" type="RayCast2D" parent="VisualContainer/Hip"]
+target_position = Vector2(7, -28)
+
+[node name="BodyOverlapRay3" type="RayCast2D" parent="VisualContainer/Hip"]
+target_position = Vector2(-7, -28)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+enabled = false
+zoom = Vector2(2, 2)
+
+[node name="HipCollision" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("CapsuleShape2D_y2th7")
+
+[node name="BodyCollision" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_r64mm")
